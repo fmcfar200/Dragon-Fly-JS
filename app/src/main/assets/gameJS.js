@@ -131,6 +131,8 @@ function render(delta) {
 
  function touchUp(evt) {
     evt.preventDefault();
+    sDragon.gravity = 0.2;
+    sDragon.gravityVel = 0.0;
     // Terminate touch path
     lastPt=null;
  }
