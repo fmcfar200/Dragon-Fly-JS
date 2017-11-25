@@ -39,6 +39,8 @@ function aSprite(x, y, imageSRC, velx, vely)
     this.y = y;
     this.vx = velx;
     this.vy = vely;
+    this.gravity = 0.02;
+    this.gravityVel = 0.0;
     this.sImage = new Image();
     this.sImage.src = imageSRC;
 }
@@ -55,8 +57,11 @@ aSprite.prototype.render = function()
 
 aSprite.prototype.update = function(deltaTime)
 {
-    this.x += deltaTime * this.vx;
-    this.y += deltaTime * this.vy;
+
+    this.gravityVel += this.gravity;    //gravity speed is constantly increasing
+    this.x += deltaTime * this.vx;      //x value ignored by gravity
+    this.y += deltaTime * this.vy + this.gravityVel;    //y value decreased by constant gravity
+
 }
 
  function init() {
@@ -77,7 +82,7 @@ aSprite.prototype.update = function(deltaTime)
         resizeCanvas();
 
         bkgdImage = new aSprite(0,0,"Background.png", 0, 0);
-        sDragon = new aSprite(25,canvas.height-140,"dragon.png", 0, 0);
+        sDragon = new aSprite(25,canvas.height/2,"dragon.png", 0, 0);
         startTimeMS = Date.now();
     }
 
@@ -107,9 +112,9 @@ function render(delta) {
 
  }
 
- function DragonControl()
+ function DragonControl(force)
  {
-
+    sDragon.gravity = -force;
  }
 
  function collisionDetection() {
@@ -132,7 +137,7 @@ function render(delta) {
 
  function touchDown(evt) {
     evt.preventDefault();
-    DragonControl();
+    DragonControl(2.0);
 
     //if(gameOverScreenScreen) {
         //player1Score = 0;
