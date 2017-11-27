@@ -102,6 +102,11 @@ aSprite.prototype.update = function(deltaTime)
 
         resizeCanvas();
 
+        var audio = new Audio();
+        audio.src = "background.wav";
+        audio.loop = true;
+        audio.autoplay = true;
+
         bkgdImage = new aSprite(0,0,"Background.png", 0, 0);
 
         sDragon = new aSprite(25,canvas.height/2,"dragon.png", 0, 0);
