@@ -11,9 +11,12 @@ var sArrow;
  var lastPt=null;
  var gameOverScreen = false;
 
- var arrowNum = 5;
+ var arrowNum = 25;
  var arrows = [];
  var theArrow;
+ var arrowVelx = -150;
+
+ var dead = false
 
  var score = 0;
  var lives = 3;
@@ -105,10 +108,10 @@ aSprite.prototype.update = function(deltaTime)
         sDragon.gravityEffect = true;
 
         var i;
-        for (i = 0; i < 25; i ++)
+        for (i = 0; i < arrowNum; i ++)
         {
            var randomHeight = Math.random() * (canvas.height - 10) + 10;
-           theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", -100, 0);
+           theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", arrowVelx, 0);
            arrows.push(theArrow);
         }
 
@@ -131,6 +134,7 @@ function gameLoop(){
     var elapsed = (Date.now() - startTimeMS)/1000;
     update(elapsed);
     render(elapsed);
+    collisionDetection();
     startTimeMS = Date.now();
     requestAnimationFrame(gameLoop);
 }
@@ -164,7 +168,35 @@ function render(delta) {
     sDragon.gravity = -force;
  }
 
- function collisionDetection() {
+ function collisionDetection()
+ {
+    for (var i = 0; i < arrows.length; i++)
+    {
+        var arrow = arrows[i];
+        if (sDragon.x < arrow.x + arrow.sImage.width &&
+            sDragon.x + sDragon.sImage.width > arrow.x &&
+            sDragon.y < arrow.y + arrow.sImage.height &&
+            sDragon.y + sDragon.sImage.height > arrow.y)
+        {
+            console.log("Hit arrow");
+            dead = true;
+            arrow.RemoveSprite();
+        }
+    }
+
+
+ }
+
+ aSprite.prototype.RemoveSprite = function()    //TEMP METHOD FOR REMOVING
+ {
+    this.zindex = 0;
+        this.x = -1000;
+        this.y = -1000;
+        this.vx = 0;
+        this.vy = 0;
+        this.gravityEffect = false;
+        this.gravity = 0.02;
+        this.gravityVel = 0.0;
 
  }
 
@@ -186,7 +218,12 @@ function render(delta) {
 
  function touchDown(evt) {
     evt.preventDefault();
-    DragonControl(2.0);
+    if(!dead)
+    {
+        DragonControl(2.0);
+    }
+
+
 
     //if(gameOverScreenScreen) {
         //player1Score = 0;
