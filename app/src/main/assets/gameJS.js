@@ -3,11 +3,17 @@ var canvasContext;
 var canvasX;
 var canvasY;
 var mouseIsDown = 0;
+
 var bkgdImage;
 var sDragon;
+var sArrow;
 
  var lastPt=null;
  var gameOverScreen = false;
+
+ var arrowNum = 5;
+ var arrows = [];
+ var theArrow;
 
  var score = 0;
  var lives = 3;
@@ -39,10 +45,12 @@ function aSprite(x, y, imageSRC, velx, vely)
     this.y = y;
     this.vx = velx;
     this.vy = vely;
+    this.gravityEffect = false;
     this.gravity = 0.02;
     this.gravityVel = 0.0;
     this.sImage = new Image();
     this.sImage.src = imageSRC;
+
 }
 
 aSprite.prototype.renderF = function(width, height)
@@ -57,12 +65,22 @@ aSprite.prototype.render = function()
 
 aSprite.prototype.update = function(deltaTime)
 {
+    if(this.gravityEffect)
+    {
+        this.gravityVel += this.gravity;    //gravity speed is constantly increasing
+        this.x += deltaTime * this.vx;      //x value ignored by gravity
+        this.y += deltaTime * this.vy + this.gravityVel;    //y value decreased by constant gravity
+    }
+    else
+    {
+        this.x += deltaTime * this.vx;      //x value ignored by gravity
+        this.y += deltaTime * this.vy;    //y value decreased by constant gravity
+    }
 
-    this.gravityVel += this.gravity;    //gravity speed is constantly increasing
-    this.x += deltaTime * this.vx;      //x value ignored by gravity
-    this.y += deltaTime * this.vy + this.gravityVel;    //y value decreased by constant gravity
 
 }
+
+
 
  function init() {
 
@@ -82,11 +100,26 @@ aSprite.prototype.update = function(deltaTime)
         resizeCanvas();
 
         bkgdImage = new aSprite(0,0,"Background.png", 0, 0);
+
         sDragon = new aSprite(25,canvas.height/2,"dragon.png", 0, 0);
+        sDragon.gravityEffect = true;
+
+        var i;
+        for (i = 0; i < 25; i ++)
+        {
+           var randomHeight = Math.random() * (canvas.height - 10) + 10;
+           theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", -100, 0);
+           arrows.push(theArrow);
+        }
+
+        //sArrow = new aSprite(canvas.width - 150, canvas.height/2,"Arrow.png", -100, 0);
+
+
         startTimeMS = Date.now();
     }
 
  }
+
 
 function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -94,7 +127,7 @@ function resizeCanvas() {
 }
 
 function gameLoop(){
-    console.log("gameLoop");
+    //console.log("gameLoop");
     var elapsed = (Date.now() - startTimeMS)/1000;
     update(elapsed);
     render(elapsed);
@@ -105,10 +138,24 @@ function gameLoop(){
 function render(delta) {
     bkgdImage.renderF(canvas.width,canvas.height);
     sDragon.render();
+
+    for(var i = 0; i < arrows.length; i++)
+    {
+        var arrow = arrows[i];
+        arrow.render();
+    }
+    //sArrow.render();
  }
 
  function update(delta) {
     sDragon.update(delta);
+
+     for(var i = 0; i < arrows.length; i++)
+        {
+            var arrow = arrows[i];
+            arrow.update(delta);
+        }
+    //sArrow.update(delta);
 
  }
 
