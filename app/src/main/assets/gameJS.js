@@ -56,6 +56,13 @@ function aSprite(x, y, imageSRC, velx, vely)
 
 }
 
+var uiText = function(text, colour, size, font, x, y)
+{
+    canvasContext.font = size + "px " + font;
+    canvasContext.fillStyle = colour;
+    canvasContext.fillText(text,x,y);
+}
+
 aSprite.prototype.renderF = function(width, height)
 {
     canvasContext.drawImage(this.sImage,this.x, this.y, width, height );
@@ -140,6 +147,11 @@ function gameLoop(){
     update(elapsed);
     render(elapsed);
     collisionDetection();
+
+    if (lives <= 0){dead = true;}
+
+
+
     startTimeMS = Date.now();
     requestAnimationFrame(gameLoop);
 }
@@ -153,12 +165,14 @@ function render(delta) {
         var arrow = arrows[i];
         arrow.render();
     }
+
+    uiText("Health: " + lives, "#000", 80, "Arial", 20,75);
+    uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Arial", canvas.width/2 - 50 , 75);
     //sArrow.render();
  }
 
  function update(delta) {
     sDragon.update(delta);
-
      for(var i = 0; i < arrows.length; i++)
         {
             var arrow = arrows[i];
@@ -166,6 +180,11 @@ function render(delta) {
         }
     //sArrow.update(delta);
 
+    if (!dead)
+    {
+        score += 0.1;
+
+    }
  }
 
  function DragonControl(force)
@@ -184,9 +203,17 @@ function render(delta) {
             sDragon.y + sDragon.sImage.height > arrow.y)
         {
             console.log("Hit arrow");
-            dead = true;
+            lives--;
             arrow.RemoveSprite();
+
         }
+    }
+
+    //CHECK PLAYER IS WITHIN CANVAS - IF NOT THEN INSTA DEATH
+    if (sDragon.y >= canvas.height - (sDragon.sImage.height - 60) ||
+        sDragon.y <= 0 - sDragon.sImage.height/2)
+    {
+        lives = 0;
     }
 
 
@@ -205,18 +232,15 @@ function render(delta) {
 
  }
 
- function styleText(txtColour, txtFont, txtAlign, txtBaseline)
- {
-    canvasContext.fillStyle = txtColour;
-    canvasContext.font = txtFont;
-    canvasContext.textAlign = txtAlign;
-    canvasContext.textBaseline = txtBaseline;
- }
 
  function touchUp(evt) {
     evt.preventDefault();
-    sDragon.gravity = 0.2;
-    sDragon.gravityVel = 0.0;
+    if (!dead)
+    {
+        sDragon.gravity = 0.2;
+        sDragon.gravityVel = 0.0;
+    }
+
     // Terminate touch path
     lastPt=null;
  }
