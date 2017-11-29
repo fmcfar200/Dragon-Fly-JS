@@ -8,8 +8,12 @@ var bkgdImage;
 var sDragon;
 var sArrow;
 
+var audioMusic;
+
  var lastPt=null;
  var gameOverScreen = false;
+ var gameStates = {Menu: 0, Game: 1, GameOver: 2};
+ var currentState;
 
  var arrowNum = 25;
  var arrows = [];
@@ -28,16 +32,13 @@ function load()
 {
     canvas = document.getElementById('gameCanvas');
     canvasContext = canvas.getContext('2d');
-
+    currentState = gameStates.Menu;
     init();
 
     canvasX = canvas.width/2;
     canvasY = canvas.height-30;
 
-    if(!gameOverScreen)
-    {
-        gameLoop();
-    }
+   gameLoop();
 
 }
 
@@ -109,17 +110,24 @@ aSprite.prototype.update = function(deltaTime)
 
         resizeCanvas();
 
-        var audio = new Audio();
-        audio.src = "background.wav";
-        audio.loop = true;
-        audio.autoplay = true;
+         score = 0;
+         lives = 3;
+         dead = false;
 
+        if (audioMusic == null)
+        {
+        audioMusic = new Audio();
+        audioMusic.src = "background.wav";
+        audioMusic.loop = true;
+        audioMusic.autoplay = true;
+        }
         bkgdImage = new aSprite(0,0,"Background.png", 0, 0);
 
         sDragon = new aSprite(25,canvas.height/2,"dragon.png", 0, 0);
         sDragon.gravityEffect = true;
 
         var i;
+        arrows = [];
         for (i = 0; i < arrowNum; i ++)
         {
            var randomHeight = Math.random() * (canvas.height - 10) + 10;
@@ -135,11 +143,12 @@ aSprite.prototype.update = function(deltaTime)
 
  }
 
-
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
+
+
 
 function gameLoop(){
     //console.log("gameLoop");
@@ -158,33 +167,70 @@ function gameLoop(){
 
 function render(delta) {
     bkgdImage.renderF(canvas.width,canvas.height);
-    sDragon.render();
 
-    for(var i = 0; i < arrows.length; i++)
+    switch(currentState)
     {
-        var arrow = arrows[i];
-        arrow.render();
-    }
+        case 0:
+             uiText("Hello World!", "#000", 120, "Arial",
+             canvas.width/2 -325,canvas.height/2);
 
-    uiText("Health: " + lives, "#000", 80, "Arial", 20,75);
-    uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Arial", canvas.width/2 - 50 , 75);
-    //sArrow.render();
+             uiText("Tap to begin", "#000", 80, "Arial",
+              canvas.width/2 -250,canvas.height/2 + 200);
+        break;
+
+        case 1:
+         sDragon.render();
+
+         for(var i = 0; i < arrows.length; i++)
+         {
+            var arrow = arrows[i];
+            arrow.render();
+         }
+
+         uiText("Health: " + lives, "#000", 80, "Arial", 20,75);
+         uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Arial", canvas.width/2 - 50 , 75);
+
+        break;
+        case 2:
+         uiText("You Dead Bro", "#000", 120, "Arial", canvas.width/2 -325,canvas.height/2);
+         uiText("Flight: " + Math.floor(score) + "Km", "#000", 80, "Arial", canvas.width/2 -250,canvas.height/2 + 200);
+         uiText("Tap to retry", "#000", 80, "Arial", canvas.width/2 -250,canvas.height/2 + 400);
+
+        break;
+    }
  }
 
  function update(delta) {
-    sDragon.update(delta);
-     for(var i = 0; i < arrows.length; i++)
+
+    switch(currentState)
         {
-            var arrow = arrows[i];
-            arrow.update(delta);
+            case 0:
+
+            break;
+
+            case 1:
+             sDragon.update(delta);
+                     for(var i = 0; i < arrows.length; i++)
+                     {
+                         var arrow = arrows[i];
+                         arrow.update(delta);
+                     }
+
+                     if (!dead)
+                     {
+                         score += 0.1;
+                     }
+                     else
+                     {
+                         currentState = gameStates.GameOver;
+                     }
+
+            break;
+            case 2:
+
+
+            break;
         }
-    //sArrow.update(delta);
-
-    if (!dead)
-    {
-        score += 0.1;
-
-    }
  }
 
  function DragonControl(force)
@@ -252,14 +298,14 @@ function render(delta) {
         DragonControl(2.0);
     }
 
+    if (currentState == gameStates.Menu || currentState == gameStates.GameOver)
+    {
+
+        currentState = gameStates.Game;
+        init();
+    }
 
 
-    //if(gameOverScreenScreen) {
-        //player1Score = 0;
-        //player2Score = 0;
-        //showingWinScreen = false;
-        //return;
-    //}
  touchXY(evt);
  }
 
