@@ -8,7 +8,22 @@ var bkgdImage;
 var sDragon;
 var sArrow;
 
+var sPlaybtn;
+var sReplaybtn;
+var sMenubtn;
+var sMutebtn;
+var buttons = [];
+var buttonTypes = {PLAY: 0, MENU: 1, MUTE: 2};
+
+
 var audioMusic;
+var hitSound;
+var deathSound;
+var clickSound;
+var powerSound;
+var jumpSound;
+var bGameOverPlayed = false;
+var bMute = false;
 
  var lastPt=null;
  var gameOverScreen = false;
@@ -38,7 +53,7 @@ function load()
     canvasX = canvas.width/2;
     canvasY = canvas.height-30;
 
-   gameLoop();
+    gameLoop();
 
 }
 
@@ -54,14 +69,38 @@ function aSprite(x, y, imageSRC, velx, vely)
     this.gravityVel = 0.0;
     this.sImage = new Image();
     this.sImage.src = imageSRC;
+    this.bIsbutton = false;
+    this.theType = null;
+
 
 }
 
-var uiText = function(text, colour, size, font, x, y)
+var uiText = function(text, colour, size, font, align, x, y)
 {
     canvasContext.font = size + "px " + font;
     canvasContext.fillStyle = colour;
+    canvasContext.textAlign = align;
     canvasContext.fillText(text,x,y);
+}
+
+
+var aSound = function(source, bLoop, bAutoPlay)
+{
+    this.aSound = new Audio();
+    this.aSound.src = source;
+    this.aSound.autoplay = bAutoPlay;
+    this.aSound.loop = bLoop;
+
+    this.play = function()
+    {
+        if (!bMute)
+        {
+            this.aSound.play();
+        }
+    }
+    this.stop = function(){this.aSound.pause();}
+
+
 }
 
 aSprite.prototype.renderF = function(width, height)
@@ -89,9 +128,66 @@ aSprite.prototype.update = function(deltaTime)
     }
 
 
+
 }
 
+function initButtons()
+{
+     buttons = [];
+     sPlaybtn = new aSprite(canvas.width/2 - 75,canvas.height/2 - 75,"playbutton.png",0,0);
+     sPlaybtn.bIsbutton = true;
+     sPlaybtn.theType = buttonTypes.PLAY;
 
+      sReplaybtn = new aSprite(canvas.width/2 - 75,canvas.height/2 -75,"replaybutton.png",0,0);
+      sReplaybtn.bIsbutton = true;
+      sReplaybtn.theType = buttonTypes.PLAY;
+
+      sMenubtn = new aSprite(canvas.width/2 -75,canvas.height/2 + 125,"menubutton.png",0,0);
+      sMenubtn.bIsbutton = true;
+      sMenubtn.theType = buttonTypes.MENU;
+
+
+      sMutebtn = new aSprite(canvas.width - 200,canvas.height - 200,"mutebutton.png",0,0);
+      sMutebtn.bIsbutton = true;
+      sMutebtn.theType = buttonTypes.MUTE;
+
+      buttons.push(sPlaybtn);
+      buttons.push(sReplaybtn);
+      buttons.push(sMenubtn);
+      buttons.push(sMutebtn);
+}
+
+function initSprites()
+{
+    bkgdImage = new aSprite(0,0,"Background.png", 0, 0);
+
+    sDragon = new aSprite(25,canvas.height/2,"dragon.png", 0, 0);
+    sDragon.gravityEffect = true;
+
+    var i;
+    arrows = [];
+    for (i = 0; i < arrowNum; i ++)
+    {
+       var randomHeight = Math.random() * (canvas.height - 10) + 10;
+       theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", arrowVelx, 0);
+       arrows.push(theArrow);
+    }
+}
+
+function initSounds()
+{
+     if (audioMusic == null)
+     {
+
+        audioMusic = new aSound("background.wav",true, true);
+        hitSound = new aSound("hit.wav",false,false);
+        deathSound = new aSound("gameover.wav",false,false);
+        clickSound = new aSound("click.wav",false,false);
+        jumpSound = new aSound("jump.wav", false,false);
+        //powerSound = new aSound("",false,false);
+
+     }
+}
 
  function init() {
 
@@ -114,30 +210,11 @@ aSprite.prototype.update = function(deltaTime)
          lives = 3;
          dead = false;
 
-        if (audioMusic == null)
-        {
-        audioMusic = new Audio();
-        audioMusic.src = "background.wav";
-        audioMusic.loop = true;
-        audioMusic.autoplay = true;
-        }
-        bkgdImage = new aSprite(0,0,"Background.png", 0, 0);
+        initSounds();
+        initSprites();
+        initButtons();
 
-        sDragon = new aSprite(25,canvas.height/2,"dragon.png", 0, 0);
-        sDragon.gravityEffect = true;
-
-        var i;
-        arrows = [];
-        for (i = 0; i < arrowNum; i ++)
-        {
-           var randomHeight = Math.random() * (canvas.height - 10) + 10;
-           theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", arrowVelx, 0);
-           arrows.push(theArrow);
-        }
-
-        //sArrow = new aSprite(canvas.width - 150, canvas.height/2,"Arrow.png", -100, 0);
-
-
+        resizeCanvas();
         startTimeMS = Date.now();
     }
 
@@ -157,8 +234,10 @@ function gameLoop(){
     render(elapsed);
     collisionDetection();
 
-    if (lives <= 0){dead = true;}
-
+    if (lives <= 0)
+    {
+        dead = true;
+    }
 
 
     startTimeMS = Date.now();
@@ -167,15 +246,14 @@ function gameLoop(){
 
 function render(delta) {
     bkgdImage.renderF(canvas.width,canvas.height);
-
     switch(currentState)
     {
         case 0:
-             uiText("Hello World!", "#000", 120, "Arial",
-             canvas.width/2 -325,canvas.height/2);
+             uiText("GAME!", "#000", 120, "Arial", "center",
+             canvas.width/2,canvas.height/4);
 
-             uiText("Tap to begin", "#000", 80, "Arial",
-              canvas.width/2 -250,canvas.height/2 + 200);
+              sMutebtn.render();
+              sPlaybtn.render();
         break;
 
         case 1:
@@ -187,29 +265,35 @@ function render(delta) {
             arrow.render();
          }
 
-         uiText("Health: " + lives, "#000", 80, "Arial", 20,75);
-         uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Arial", canvas.width/2 - 50 , 75);
+         uiText("Health: " + lives, "#000", 80, "Arial", "left", 20,75);
+         uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Arial", "left", canvas.width/2 + 10 , 75);
 
         break;
         case 2:
-         uiText("You Dead Bro", "#000", 120, "Arial", canvas.width/2 -325,canvas.height/2);
-         uiText("Flight: " + Math.floor(score) + "Km", "#000", 80, "Arial", canvas.width/2 -250,canvas.height/2 + 200);
-         uiText("Tap to retry", "#000", 80, "Arial", canvas.width/2 -250,canvas.height/2 + 400);
-
+         uiText("Game Over", "#000", 120, "Arial", "center", canvas.width/2 ,canvas.height/4);
+         uiText("Flight: " + Math.floor(score) + "km", "#000", 80, "Arial", "center", canvas.width/2,canvas.height/4 +150);
+         sReplaybtn.render();
+         sMenubtn.render();
         break;
     }
  }
 
  function update(delta) {
-
     switch(currentState)
         {
             case 0:
+            bGameOverPlayed = false;
+            if(!bMute){audioMusic.play();}
+            sPlaybtn.update(delta);
+            sMutebtn.update(delta);
 
             break;
 
             case 1:
              sDragon.update(delta);
+             bGameOverPlayed = false;
+             if(!bMute){audioMusic.play();}
+
                      for(var i = 0; i < arrows.length; i++)
                      {
                          var arrow = arrows[i];
@@ -227,7 +311,15 @@ function render(delta) {
 
             break;
             case 2:
+            audioMusic.stop();
+            if (!bGameOverPlayed)
+            {
+                deathSound.play();
+                bGameOverPlayed = true;
+            }
 
+            sReplaybtn.update(delta);
+            sMenubtn.update(delta);
 
             break;
         }
@@ -236,7 +328,16 @@ function render(delta) {
  function DragonControl(force)
  {
     sDragon.gravity = -force;
+    jumpSound.play();
  }
+
+ function TakeDamage()
+ {
+    lives--;
+    hitSound.play();
+ }
+
+
 
  function collisionDetection()
  {
@@ -249,9 +350,9 @@ function render(delta) {
             sDragon.y + sDragon.sImage.height > arrow.y)
         {
             console.log("Hit arrow");
-            lives--;
             arrow.RemoveSprite();
 
+            TakeDamage();
         }
     }
 
@@ -264,6 +365,50 @@ function render(delta) {
 
 
  }
+
+ function buttonClick(buttons)
+ {
+    for (var i = 0; i < buttons.length; i ++)
+    {
+        if (lastPt.x <= buttons[i].x + buttons[i].sImage.width &&
+            lastPt.x >= buttons[i].x &&
+            lastPt.y <= buttons[i].y + buttons[i].sImage.height &&
+            lastPt.y >= buttons[i].y )
+         {
+             if (buttons[i].theType == buttonTypes.PLAY)
+             {
+                clickSound.play();
+                currentState = gameStates.Game;
+                init();
+             }
+             else if (buttons[i].theType == buttonTypes.MENU)
+             {
+                clickSound.play();
+                currentState = gameStates.Menu;
+                init();
+             }
+             else if (buttons[i].theType == buttonTypes.MUTE)
+             {
+                switch(bMute)
+                {
+                    case true:
+                    bMute = false;
+                    audioMusic.play();
+                    break;
+                    case false:
+                    bMute = true;
+                    audioMusic.stop();
+                    break;
+                }
+             }
+         }
+    }
+
+
+ }
+
+
+
 
  aSprite.prototype.RemoveSprite = function()    //TEMP METHOD FOR REMOVING
  {
@@ -293,20 +438,27 @@ function render(delta) {
 
  function touchDown(evt) {
     evt.preventDefault();
-    if(!dead)
+    touchXY(evt);
+
+    switch(currentState)
     {
-        DragonControl(2.0);
+        case 0:
+            buttonClick(buttons);
+
+        break;
+
+        case 1:
+            if(!dead){DragonControl(2.0);}
+
+        break;
+
+        case 2:
+            buttonClick(buttons);
+
+        break;
     }
 
-    if (currentState == gameStates.Menu || currentState == gameStates.GameOver)
-    {
 
-        currentState = gameStates.Game;
-        init();
-    }
-
-
- touchXY(evt);
  }
 
  function touchXY(evt) {
@@ -316,4 +468,6 @@ function render(delta) {
         var touchY = evt.touches[0].pageY - canvas.offsetTop;
     }
  lastPt = {x:evt.touches[0].pageX, y:evt.touches[0].pageY};
+
+
  }
