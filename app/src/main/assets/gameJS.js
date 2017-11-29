@@ -42,6 +42,7 @@ var bMute = false;
 
  var startTimeMS;
 
+
  //window.onload =
 function load()
 {
@@ -210,6 +211,7 @@ function initSounds()
          lives = 3;
          dead = false;
 
+
         initSounds();
         initSprites();
         initButtons();
@@ -249,8 +251,16 @@ function render(delta) {
     switch(currentState)
     {
         case 0:
-             uiText("GAME!", "#000", 120, "Arial", "center",
-             canvas.width/2,canvas.height/4);
+             uiText("DragonFly!", "rgb(10000,0,0)", 120, "Courgette", "center",
+             canvas.width/2,canvas.height/4 - 200);
+
+             uiText("Instructions: Tap the screen to fly",
+              "#000", 50, "Courgette", "center",
+              canvas.width/2,canvas.height/4);
+
+              uiText("Avoid obstacles as long as possible!",
+              "#000", 50, "Courgette", "center",
+              canvas.width/2,canvas.height/4 + 200);
 
               sMutebtn.render();
               sPlaybtn.render();
@@ -265,13 +275,13 @@ function render(delta) {
             arrow.render();
          }
 
-         uiText("Health: " + lives, "#000", 80, "Arial", "left", 20,75);
-         uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Arial", "left", canvas.width/2 + 10 , 75);
+         uiText("Health: " + lives, "#000", 80, "Courgette", "left", 20,75);
+         uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Courgette", "left", canvas.width/2 + 10 , 75);
 
         break;
         case 2:
-         uiText("Game Over", "#000", 120, "Arial", "center", canvas.width/2 ,canvas.height/4);
-         uiText("Flight: " + Math.floor(score) + "km", "#000", 80, "Arial", "center", canvas.width/2,canvas.height/4 +150);
+         uiText("Game Over", "#000", 120, "Courgette", "center", canvas.width/2 ,canvas.height/4);
+         uiText("Flight: " + Math.floor(score) + "km", "#000", 80, "Courgette", "center", canvas.width/2,canvas.height/4 +150);
          sReplaybtn.render();
          sMenubtn.render();
         break;
