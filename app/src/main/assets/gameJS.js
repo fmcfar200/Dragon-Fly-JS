@@ -33,7 +33,7 @@ var bMute = false;
  var arrowNum = 25;
  var arrows = [];
  var theArrow;
- var arrowVelx = -150;
+ var arrowVelx = 150;
 
  var dead = false
 
@@ -132,6 +132,21 @@ aSprite.prototype.update = function(deltaTime)
 
 }
 
+aSprite.prototype.updateA = function(deltaTime)
+{
+        this.x += deltaTime * arrowVelx * (-1);      //x value ignored by gravity
+        this.y += deltaTime * this.vy;    //y value decreased by constant gravity
+
+         if (score > 50 && score < 100){arrowVelx = 300;}
+         else if (score > 100 && score < 150) {arrowVelx = 400;}
+         else if (score > 150 && score < 200) {arrowVelx = 450;}
+
+
+
+
+
+}
+
 function initButtons()
 {
      buttons = [];
@@ -170,7 +185,7 @@ function initSprites()
     for (i = 0; i < arrowNum; i ++)
     {
        var randomHeight = Math.random() * (canvas.height - 10) + 10;
-       theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", arrowVelx, 0);
+       theArrow = new aSprite(canvas.width - 150 + (500 * i ), randomHeight,"Arrow.png", -arrowVelx, 0);
        arrows.push(theArrow);
     }
 }
@@ -208,6 +223,7 @@ function initSounds()
         resizeCanvas();
 
          score = 0;
+         arrowVelx = 150;
          lives = 3;
          dead = false;
 
@@ -304,10 +320,17 @@ function render(delta) {
              bGameOverPlayed = false;
              if(!bMute){audioMusic.play();}
 
+
                      for(var i = 0; i < arrows.length; i++)
                      {
                          var arrow = arrows[i];
-                         arrow.update(delta);
+                         arrow.updateA(delta);
+
+                         if (arrow.x <= -50)
+                                  {
+                                     arrow.x = canvas.width - 150 + (500 * i );
+                                     arrow.y = Math.random() * (canvas.height - 10) + 10;
+                                  }
                      }
 
                      if (!dead)
