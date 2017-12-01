@@ -42,6 +42,9 @@ var bMute = false;
 
  var startTimeMS;
 
+ //TEST CODE
+ var localStorage;
+
 
  //window.onload =
 function load()
@@ -234,8 +237,12 @@ function initSounds()
         initSprites();
         initButtons();
 
+        localStorage = window.localStorage;
+
         resizeCanvas();
         startTimeMS = Date.now();
+
+
     }
 
  }
@@ -282,6 +289,10 @@ function render(delta) {
 
               sMutebtn.render();
               sPlaybtn.render();
+
+               uiText("Last Score: " + Math.floor(localStorage.getItem('score')) + "km",
+                            "#000", 50, "Courgette", "center",
+                            canvas.width/2,canvas.height/4 + 700);
         break;
 
         case 1:
@@ -352,6 +363,7 @@ function render(delta) {
             if (!bGameOverPlayed)
             {
                 deathSound.play();
+                localStorage.setItem('score', score);
                 bGameOverPlayed = true;
             }
 
