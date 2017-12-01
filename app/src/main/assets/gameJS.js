@@ -203,6 +203,8 @@ function initSounds()
         //powerSound = new aSound("",false,false);
 
      }
+
+     audioMusic.play();
 }
 
  function init() {
@@ -318,29 +320,31 @@ function render(delta) {
             case 1:
              sDragon.update(delta);
              bGameOverPlayed = false;
-             if(!bMute){audioMusic.play();}
+             if(!bMute)
+             {
+                audioMusic.play();
+             }
 
+             for(var i = 0; i < arrows.length; i++)
+             {
+                 var arrow = arrows[i];
+                 arrow.updateA(delta);
 
-                     for(var i = 0; i < arrows.length; i++)
-                     {
-                         var arrow = arrows[i];
-                         arrow.updateA(delta);
+                 if (arrow.x <= -50)
+                 {
+                    arrow.x = canvas.width - 150 + (500 * i );
+                    arrow.y = Math.random() * (canvas.height - 10) + 10;
+                 }
+             }
 
-                         if (arrow.x <= -50)
-                                  {
-                                     arrow.x = canvas.width - 150 + (500 * i );
-                                     arrow.y = Math.random() * (canvas.height - 10) + 10;
-                                  }
-                     }
-
-                     if (!dead)
-                     {
-                         score += 0.1;
-                     }
-                     else
-                     {
-                         currentState = gameStates.GameOver;
-                     }
+             if (!dead)
+             {
+                 score += 0.1;
+             }
+             else
+             {
+                 currentState = gameStates.GameOver;
+             }
 
             break;
             case 2:
