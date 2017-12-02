@@ -44,7 +44,9 @@ var bMute = false;
 
  //TEST CODE
  var localStorage;
-
+ var highScoreName = "Weather-Boy";
+ var highScore = 0;
+ var defualtScore = 1248;
 
  //window.onload =
 function load()
@@ -56,6 +58,7 @@ function load()
 
     canvasX = canvas.width/2;
     canvasY = canvas.height-30;
+
 
     gameLoop();
 
@@ -147,6 +150,16 @@ aSprite.prototype.updateA = function(deltaTime)
 
 
 
+
+}
+
+function CheckHightScore()
+{
+    if (score > highScore)
+    {
+        localStorage.setItem('highScore', score);
+        highScore = score;
+    }
 
 }
 
@@ -290,9 +303,20 @@ function render(delta) {
               sMutebtn.render();
               sPlaybtn.render();
 
-               uiText("Last Score: " + Math.floor(localStorage.getItem('score')) + "km",
-                            "#000", 50, "Courgette", "center",
-                            canvas.width/2,canvas.height/4 + 700);
+              if (localStorage.getItem('highScore') > defualtScore  )
+                       {
+                            uiText("HighScores: " + highScoreName + "  " + Math.floor(localStorage.getItem('highScore')) + "km",
+                                                       "#000", 50, "Courgette", "center",
+                                                       canvas.width/2,canvas.height/4 + 700);;
+                       }
+                       else
+                       {
+                                uiText("HighScores: " + highScoreName + "  " + Math.floor(defualtScore) + "km",
+                                                           "#000", 50, "Courgette", "center",
+                                                           canvas.width/2,canvas.height/4 + 700);
+
+                       }
+
         break;
 
         case 1:
@@ -364,6 +388,7 @@ function render(delta) {
             {
                 deathSound.play();
                 localStorage.setItem('score', score);
+                CheckHightScore();
                 bGameOverPlayed = true;
             }
 
