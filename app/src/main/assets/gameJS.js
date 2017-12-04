@@ -44,9 +44,7 @@ var bMute = false;
 
  //TEST CODE
  var localStorage;
- var highScoreName = "Weather-Boy";
  var highScore = 0;
- var defualtScore = 1248;
 
  //window.onload =
 function load()
@@ -303,19 +301,12 @@ function render(delta) {
               sMutebtn.render();
               sPlaybtn.render();
 
-              if (localStorage.getItem('highScore') > defualtScore  )
-                       {
-                            uiText("HighScores: " + highScoreName + "  " + Math.floor(localStorage.getItem('highScore')) + "km",
+
+               uiText("HighScores: " + Math.floor(localStorage.getItem('highScore')) + "km",
                                                        "#000", 50, "Courgette", "center",
                                                        canvas.width/2,canvas.height/4 + 700);;
-                       }
-                       else
-                       {
-                                uiText("HighScores: " + highScoreName + "  " + Math.floor(defualtScore) + "km",
-                                                           "#000", 50, "Courgette", "center",
-                                                           canvas.width/2,canvas.height/4 + 700);
 
-                       }
+
 
         break;
 
