@@ -43,7 +43,8 @@ var bMute = false;
  var startTimeMS;
 
  //TEST CODE
- var localStorage;
+ var locStorage;
+ var bStorageAvailable;
  var highScore = 0;
 
  //window.onload =
@@ -52,6 +53,20 @@ function load()
     canvas = document.getElementById('gameCanvas');
     canvasContext = canvas.getContext('2d');
     currentState = gameStates.Menu;
+
+    if (checkStorage('localStorage'))
+    {
+       console.log("Local Storage Available");
+       locStorage = window.localStorage;
+       bStorageAvailable = true;
+    }
+    else
+    {
+        console.log("LOCAL STORAGE NOT AVAILABLE");
+        bStorageAvailable = false;
+
+    }
+
     init();
 
     canvasX = canvas.width/2;
@@ -153,10 +168,12 @@ aSprite.prototype.updateA = function(deltaTime)
 
 function CheckHightScore()
 {
-    if (score > highScore)
+    if (bStorageAvailable)
     {
-        localStorage.setItem('highScore', score);
-        highScore = score;
+        if (score > localStorage.getItem('highScore'))
+        {
+            locStorage.setItem('highScore', score);
+        }
     }
 
 }
@@ -248,7 +265,6 @@ function initSounds()
         initSprites();
         initButtons();
 
-        localStorage = window.localStorage;
 
         resizeCanvas();
         startTimeMS = Date.now();
@@ -301,11 +317,12 @@ function render(delta) {
               sMutebtn.render();
               sPlaybtn.render();
 
-
-               uiText("HighScores: " + Math.floor(localStorage.getItem('highScore')) + "km",
-                                                       "#000", 50, "Courgette", "center",
-                                                       canvas.width/2,canvas.height/4 + 700);;
-
+              if (bStorageAvailable)
+              {
+                uiText("HighScore: " + Math.floor(locStorage.getItem('highScore')) + "km",
+                "#000", 50, "Courgette", "center",
+                canvas.width/2,canvas.height/4 + 700);
+              }
 
 
         break;
@@ -378,7 +395,6 @@ function render(delta) {
             if (!bGameOverPlayed)
             {
                 deathSound.play();
-                localStorage.setItem('score', score);
                 CheckHightScore();
                 bGameOverPlayed = true;
             }
@@ -486,6 +502,32 @@ function render(delta) {
         this.gravity = 0.02;
         this.gravityVel = 0.0;
 
+ }
+
+ function checkStorage(type)
+ {
+    try
+    {
+        var storage = window[type], x = '__storage_test__';
+        storage.setItem(x,x);
+        storage.removeItem(x);
+        return true;
+    }
+    catch(e)
+    {
+        return e instanceof DOMException &&
+        (
+            e.code === 22 ||
+
+            e.code === 1014 ||
+
+            e.name === 'QuotaExceededError' ||
+
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+
+            storage.length  !== 0;
+
+    }
  }
 
 
