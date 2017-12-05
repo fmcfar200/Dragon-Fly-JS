@@ -52,7 +52,6 @@ function load()
 {
     canvas = document.getElementById('gameCanvas');
     canvasContext = canvas.getContext('2d');
-    currentState = gameStates.Menu;
 
     if (checkStorage('localStorage'))
     {
@@ -68,6 +67,7 @@ function load()
     }
 
     init();
+    currentState = gameStates.Menu;
 
     canvasX = canvas.width/2;
     canvasY = canvas.height-30;
@@ -181,20 +181,29 @@ function CheckHightScore()
 function initButtons()
 {
      buttons = [];
-     sPlaybtn = new aSprite(canvas.width/2 - 75,canvas.height/2 - 75,"playbutton.png",0,0);
+     sPlaybtn = new aSprite(0,0,"playbutton.png",0,0);
+     sPlaybtn.x = canvas.width/2 - sPlaybtn.sImage.width/2;
+     sPlaybtn.y = canvas.height/2 - sPlaybtn.sImage.height/2;
      sPlaybtn.bIsbutton = true;
      sPlaybtn.theType = buttonTypes.PLAY;
 
-      sReplaybtn = new aSprite(canvas.width/2 - 75,canvas.height/2 -75,"replaybutton.png",0,0);
+
+      sReplaybtn = new aSprite(0,0,"replaybutton.png",0,0);
+      sReplaybtn.x = canvas.width/2 - sReplaybtn.sImage.width/2;
+      sReplaybtn.y = canvas.height/2 - sReplaybtn.sImage.height/2;
       sReplaybtn.bIsbutton = true;
       sReplaybtn.theType = buttonTypes.PLAY;
 
-      sMenubtn = new aSprite(canvas.width/2 -75,canvas.height/2 + 125,"menubutton.png",0,0);
+      sMenubtn = new aSprite(0,0,"menubutton.png",0,0);
+      sMenubtn.x = canvas.width/2 - sMenubtn.sImage.width/2;
+      sMenubtn.y = canvas.height/2 + sMenubtn.sImage.height + 5;
       sMenubtn.bIsbutton = true;
       sMenubtn.theType = buttonTypes.MENU;
 
 
-      sMutebtn = new aSprite(canvas.width - 200,canvas.height - 200,"mutebutton.png",0,0);
+      sMutebtn = new aSprite(0,0,"mutebutton.png",0,0);
+      sMutebtn.x = canvas.width - sMutebtn.sImage.width - 10;
+      sMutebtn.y = canvas.height - sMutebtn.sImage.height - 10;
       sMutebtn.bIsbutton = true;
       sMutebtn.theType = buttonTypes.MUTE;
 
@@ -255,6 +264,7 @@ function initSounds()
 
         resizeCanvas();
 
+
          score = 0;
          arrowVelx = 150;
          lives = 3;
@@ -266,7 +276,6 @@ function initSounds()
         initButtons();
 
 
-        resizeCanvas();
         startTimeMS = Date.now();
 
 
@@ -303,16 +312,16 @@ function render(delta) {
     switch(currentState)
     {
         case 0:
-             uiText("DragonFly!", "rgb(10000,0,0)", 120, "Courgette", "center",
-             canvas.width/2,canvas.height/4 - 200);
+             uiText("DragonFly!", "rgb(10000,0,0)", 60, "Courgette", "center",
+             canvas.width/2,canvas.height/4);
 
              uiText("Instructions: Tap the screen to fly",
-              "#000", 50, "Courgette", "center",
-              canvas.width/2,canvas.height/4);
+              "#000", 20, "Courgette", "center",
+              canvas.width/2,canvas.height/4 + 50);
 
               uiText("Avoid obstacles as long as possible!",
-              "#000", 50, "Courgette", "center",
-              canvas.width/2,canvas.height/4 + 200);
+              "#000", 20, "Courgette", "center",
+              canvas.width/2,canvas.height/4 + 100);
 
               sMutebtn.render();
               sPlaybtn.render();
@@ -320,9 +329,10 @@ function render(delta) {
               if (bStorageAvailable)
               {
                 uiText("HighScore: " + Math.floor(locStorage.getItem('highScore')) + "km",
-                "#000", 50, "Courgette", "center",
-                canvas.width/2,canvas.height/4 + 700);
+                "#000", 20, "Courgette", "center",
+                canvas.width/2,canvas.height/4 + 100);
               }
+
 
 
         break;
@@ -336,13 +346,13 @@ function render(delta) {
             arrow.render();
          }
 
-         uiText("Health: " + lives, "#000", 80, "Courgette", "left", 20,75);
-         uiText("Score: " + Math.floor(score) + "km", "#000", 80, "Courgette", "left", canvas.width/2 + 10 , 75);
+         uiText("Health: " + lives, "#000", 30, "Courgette", "left", 10,32);
+         uiText("Score: " + Math.floor(score) + "km", "#000", 30, "Courgette", "left", canvas.width/2 + 5 , 32);
 
         break;
         case 2:
-         uiText("Game Over", "#000", 120, "Courgette", "center", canvas.width/2 ,canvas.height/4);
-         uiText("Flight: " + Math.floor(score) + "km", "#000", 80, "Courgette", "center", canvas.width/2,canvas.height/4 +150);
+         uiText("Game Over", "#000", 60, "Courgette", "center", canvas.width/2 ,canvas.height/4);
+         uiText("Flight: " + Math.floor(score) + "km", "#000", 40, "Courgette", "center", canvas.width/2,canvas.height/4 + 75);
          sReplaybtn.render();
          sMenubtn.render();
         break;
@@ -375,7 +385,7 @@ function render(delta) {
 
                  if (arrow.x <= -50)
                  {
-                    arrow.x = canvas.width - 150 + (500 * i );
+                    arrow.x = canvas.width + 150 + (500 * i );
                     arrow.y = Math.random() * (canvas.height - 10) + 10;
                  }
              }
