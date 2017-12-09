@@ -6,7 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
  WebView webView;
  @Override
  protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
          decorView.setSystemUiVisibility(uiOptions);
 
          setContentView(R.layout.activity_main);
-
          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
          webView = (WebView)findViewById(R.id.webview1);
 
