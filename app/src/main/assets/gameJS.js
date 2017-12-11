@@ -340,7 +340,13 @@ function render(delta) {
               {
                 uiText("HighScore: " + Math.floor(locStorage.getItem('highScore')) + "km",
                 "#000", 20, "Courgette", "center",
-                canvas.width/2,canvas.height/4 + 100);
+                canvas.width/2,canvas.height/2 + 150);
+              }
+              else
+              {
+                 uiText("High Scores Unavaiable: ",
+                 "#000", 20, "Courgette", "center",
+                 canvas.width/2,canvas.height/2 + 150);
               }
         break;
         //if state is game
@@ -382,7 +388,6 @@ function render(delta) {
         //menu state
             case 0:
             //update buttons and play audio
-            bGameOverPlayed = false;
             if(!bMute){audioMusic.play();}
             sPlaybtn.update(delta);
             sMutebtn.update(delta);
@@ -449,11 +454,16 @@ function render(delta) {
     jumpSound.play();//jump sound
  }
 
+var hit = false
 //take damage
  function TakeDamage()
  {
-    lives--;    //life -1
+    if (hit == true)
+    {
+    lives -= 1;    //life -1
     hitSound.play(); //hit sound is played
+    hit = false;
+    }
  }
 
 
@@ -470,9 +480,10 @@ function render(delta) {
             sDragon.y + sDragon.sImage.height > arrow.y)    //check bounds
         {
             console.log("Hit arrow");
-            arrows.splice(arrow,1);//remove arrow from array
-
+            arrow.RemoveSprite();
+            hit = true;
             TakeDamage();   //take damage
+
         }
     }
 
@@ -484,6 +495,16 @@ function render(delta) {
     }
 
 
+ }
+
+ aSprite.prototype.RemoveSprite = function()
+ {
+    this.zindex = 0;
+    this.x = -1000;
+    this.y = -1000;
+    this.vx = 0;
+    this.vy = 0;
+    this.gravityEffect= false;
  }
 
  function buttonClick(buttons)
